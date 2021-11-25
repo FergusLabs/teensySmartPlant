@@ -19,7 +19,7 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH,SCREEN_HEIGHT, &Wire);
 Adafruit_BME280 bme;
 
-const int moisturePin = A7;
+const int moisturePin = 21;
 const int relayPin = 10;
 
 float tempC, tempF, pressPA, pressInHg, humidRH, moisturePercent;
@@ -37,7 +37,7 @@ void setup() {
   if(!bme.begin(BME_ADDRESS)) {
     Serial.printf("BME280 at address 0x%02X failed to start", BME_ADDRESS);
   }
-  pinMode(21,INPUT);
+  pinMode(moisturePin,INPUT);
   pinMode(relayPin, OUTPUT);
   display.display();
   display.clearDisplay();
@@ -48,14 +48,14 @@ void setup() {
 
 void loop() {
   if ((millis()-checkTime)>1000) {
+    checkMoisture();
     checkReads();
     showData();
     checkTime = millis();
   }
 }
 
-void checkBME () {
-  
+void checkReads () {
   tempC = bme.readTemperature();
   pressPA = bme.readPressure();
   humidRH = bme.readHumidity();
@@ -76,9 +76,9 @@ float paToInHg(float _pressPA) {
    return (_pressPA*0.00029530);   
 }
 
-//float moistureToPercent (int _moisture) {
-//  return map(_moisture);
-//}
+float moistureToPercent (int _moisture) {
+  return map(_moisture,925,380,0,100);
+}
 
 void showData(void) { 
   display.clearDisplay();
